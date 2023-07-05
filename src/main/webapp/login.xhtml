@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta charset="utf-8" name="viewport"
+		content="width=device=width, initial-scale=1"
+		http-equiv="X-UA-Compatible" />
+	<title>Iniciar Sesion</title>
+</h:head>
+<h:body
+	style="padding: 1.5rem; margin-right: 0; margin-left: 0; border-width: 0.2rem;">
+	<p:growl id="mensajeGeneral" showDetail="true" life="3000" />
+	<h:form>
+		<p:panelGrid columns="2" styleClass="ui-noborder"
+			style="margin: 0 auto">
+			<f:facet name="header">
+				<p:outputLabel value="Iniciar Sesion" style="font-size: 30px;" />
+			</f:facet>
+			<p:outputLabel for="username" value="Usuario:" />
+			<p:inputText id="username" value="#{loginBean.username}"
+				required="true" />
+
+			<p:outputLabel for="password" value="Contraseña:" />
+			<p:password id="password" value="#{loginBean.password}"
+				required="true" />
+
+			<p:commandButton value="Iniciar sesión" action="#{loginBean.login}" icon="pi pi-sign-in"
+				update="mensajeGeneral" />
+		</p:panelGrid>
+	</h:form>
+</h:body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE HTML>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta charset="utf-8" name="viewport"
+		content="width=device=width, initial-scale=1"
+		http-equiv="X-UA-Compatible" />
+	<title>Lista de Hospitales</title>
+</h:head>
+<h:body
+	style="padding: 1.5rem; margin-right: 0; margin-left: 0; border-width: 0.2rem;">
+	<p:growl id="mensajeGeneral" showDetail="true" life="3000" />
+	<h:form>
+		<p:outputLabel value="¡Bienvenido, #{loginBean.username}!"
+			rendered="#{not empty loginBean.username}" />
+		<p:commandButton action="#{loginBean.logout}" icon="pi pi-sign-out"
+			style="background-color:#dc3545!important; border-color:#dc3545!important; margin-left:10px;"
+			rendered="#{not empty loginBean.username}" />
+	</h:form>
+	<br />
+	<p:accordionPanel activeIndex="-1" style="width: 400px;">
+		<p:tab title="Por Hospital">
+			<h:form>
+				<p:inputText value="#{hospitalBean.searchKeyword}" />
+				<p:commandButton icon="pi pi-search" style="margin-left:10px;"
+					actionListener="#{hospitalBean.getListar()}"
+					update=":formMostrarHospitales:tablaMostrarHospitales" />
+			</h:form>
+		</p:tab>
+		<p:tab title="Sede">
+			<h:form>
+				<p:selectOneMenu value="#{hospitalBean.selectedSede.idSede}"
+					style="display: inline-grid;">
+					<f:selectItem itemLabel="-- Seleccione --" />
+					<f:selectItems value="#{hospitalBean.listSedes}" var="sede"
+						itemLabel="#{sede.descSede}" itemValue="#{sede}" />
+				</p:selectOneMenu>
+				<p:commandButton icon="pi pi-search" style="margin-left:10px;"
+					actionListener="#{hospitalBean.getListar()}"
+					update=":formMostrarHospitales:tablaMostrarHospitales" />
+			</h:form>
+		</p:tab>
+	</p:accordionPanel>
+	<br />
+
+	<h:form>
+		<p:commandButton icon="pi pi-user-plus"
+			style="background-color:#28a745!important; border-color:#28a745!important;"
+			actionListener="hospitalBean.prepararNuevoHospital(actionEvent)"
+			oncomplete="PF('dlgNuevo').show();" update=":formInsertar" />
+	</h:form>
+
+	<p:dialog id="dlg3" header="Nuevo Hospital" widgetVar="dlgNuevo"
+		showEffect="explode" hideEffect="explode" modal="true"
+		style=" width:417px!important;">
+		<h:form id="formInsertar">
+			<p:panelGrid id="gridInsertar" columns="2" style="margin: 0 auto;"
+				styleClass="ui-noborder">
+
+				<p:outputLabel value="Nombre:" />
+				<p:inputText value="#{hospitalBean.hospital.nombre}" required="true"
+					requiredMessage="Nombre es obligatorio" />
+
+				<p:outputLabel value="Antiguedad:" />
+				<p:inputText value="#{hospitalBean.hospital.antiguedad}"
+					required="true" requiredMessage="Antiguedad es obligatorio" />
+
+				<p:outputLabel value="Area:" />
+				<p:inputText value="#{hospitalBean.hospital.area}" required="true"
+					requiredMessage="Area es obligatorio" />
+
+				<p:outputLabel value="Distrito:" />
+				<p:selectOneMenu id="distrito"
+					value="#{hospitalBean.hospital.distrito.idDistrito}"
+					required="true" requiredMessage="Seleccione un distrito">
+					<f:selectItem itemLabel="-- Seleccione --"></f:selectItem>
+					<f:selectItems value="#{hospitalBean.listDistritos}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel value="Sede:" />
+				<p:selectOneMenu id="sede"
+					value="#{hospitalBean.hospital.sede.idSede}" required="true"
+					requiredMessage="Seleccione una sede">
+					<f:selectItem itemLabel="-- Seleccione --"></f:selectItem>
+					<f:selectItems value="#{hospitalBean.listSedes}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel value="Gerente:" />
+				<p:selectOneMenu id="gerente"
+					value="#{hospitalBean.hospital.gerente.idGerente}" required="true"
+					requiredMessage="Seleccione un gerente">
+					<f:selectItem itemLabel="-- Seleccione --"></f:selectItem>
+					<f:selectItems value="#{hospitalBean.listGerentes}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel value="Condicion:" />
+				<p:selectOneMenu id="condicion"
+					value="#{hospitalBean.hospital.condicion.idCondicion}"
+					required="true" requiredMessage="Seleccione una condicion">
+					<f:selectItem itemLabel="-- Seleccione --"></f:selectItem>
+					<f:selectItems value="#{hospitalBean.listCondiciones}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel value="Fecha:" />
+				<p:datePicker value="#{hospitalBean.hospital.fechaRegistro}"
+					pattern="dd/MM/yyyy" placeholder="dd/mm/aaaa" readonlyInput="true"
+					required="true" requiredMessage="Seleccione una fecha" />
+
+				<p:commandButton value="Guardar"
+					actionListener="#{hospitalBean.nuevoHospital()}"
+					oncomplete="PF('dlgNuevo').hide();"
+					update=":formMostrarHospitales:tablaMostrarHospitales :formInsertar mensajeGeneral" />
+
+				<p:commandButton value="Cancelar"
+					style="background-color: #6c757d; border-color: #6c757d;"
+					action="#{hospitalBean.cancelar()}" update=":formInsertar"
+					immediate="true" onclick="PF('dlgNuevo').hide();" />
+
+			</p:panelGrid>
+		</h:form>
+	</p:dialog>
+
+	<p:separator />
+
+	<h:form id="formMostrarHospitales">
+		<p:dataTable id="tablaMostrarHospitales"
+			value="#{hospitalBean.listar}" var="h"
+			emptyMessage="No hay datos de hospitales">
+			<p:column headerText="Id">
+				<h:outputText value="#{h.idHospital}"></h:outputText>
+			</p:column>
+			<p:column headerText="Distrito">
+				<h:outputText value="#{h.distrito.descDistrito}"></h:outputText>
+			</p:column>
+			<p:column headerText="Nombre">
+				<h:outputText value="#{h.nombre}"></h:outputText>
+			</p:column>
+			<p:column headerText="Antiguedad">
+				<h:outputText value="#{h.antiguedad}"></h:outputText>
+			</p:column>
+			<p:column headerText="Area">
+				<h:outputText value="#{h.area}"></h:outputText>
+			</p:column>
+			<p:column headerText="Sede">
+				<h:outputText value="#{h.sede.descSede}"></h:outputText>
+			</p:column>
+			<p:column headerText="Gerente">
+				<h:outputText value="#{h.gerente.descGerente}"></h:outputText>
+			</p:column>
+			<p:column headerText="Condicion">
+				<h:outputText value="#{h.condicion.descCondicion}"></h:outputText>
+			</p:column>
+			<p:column headerText="Fecha">
+				<h:outputText value="#{h.fechaRegistro}">
+					<f:convertDateTime pattern="dd/MM/yyyy"></f:convertDateTime>
+				</h:outputText>
+			</p:column>
+			<p:column headerText="Accion">
+				<p:commandButton icon="pi pi-user-edit"
+					style="margin-right: 10px; background-color:#ffc107!important; border-color:#ffc107!important; color:black!important;"
+					oncomplete="PF('dlgModificar').show();" update=":formModificar">
+					<f:setPropertyActionListener value="#{h}"
+						target="#{hospitalBean.hospital}"></f:setPropertyActionListener>
+				</p:commandButton>
+				<p:commandButton icon="pi pi-trash"
+					style="background-color:#dc3545!important; border-color:#dc3545!important;"
+					oncomplete="PF('dlgEliminar').show();" update=":formEliminar">
+					<f:setPropertyActionListener value="#{h}"
+						target="#{hospitalBean.hospital}"></f:setPropertyActionListener>
+				</p:commandButton>
+			</p:column>
+			<f:facet name="footer">
+				<span class="font-bold">Existen #{hospitalBean.count}
+					Hospital(es)</span>
+			</f:facet>
+		</p:dataTable>
+	</h:form>
+
+	<p:dialog id="dlg" header="Modificar Hospital" widgetVar="dlgModificar"
+		showEffect="explode" hideEffect="explode" modal="true">
+		<h:form id="formModificar">
+			<h:inputHidden value="#{hospitalBean.hospital.idHospital}"></h:inputHidden>
+			<p:panelGrid columns="2" style="margin: 0 auto"
+				styleClass="ui-noborder">
+
+				<p:outputLabel value="Nombre:" />
+				<p:inputText value="#{hospitalBean.hospital.nombre}" required="true"
+					requiredMessage="Nombre es obligatorio" />
+
+				<p:outputLabel value="Antiguedad:" />
+				<p:inputText value="#{hospitalBean.hospital.antiguedad}"
+					required="true" requiredMessage="Antiguedad es obligatorio" />
+
+				<p:outputLabel value="Area:" />
+				<p:inputText value="#{hospitalBean.hospital.area}" required="true"
+					requiredMessage="Area es obligatorio" />
+
+				<p:outputLabel value="Distrito:" />
+				<p:selectOneMenu id="distrito"
+					value="#{hospitalBean.hospital.distrito.idDistrito}"
+					required="true" requiredMessage="Seleccione un distrito">
+					<f:selectItem itemLabel="-- Seleccione --"></f:selectItem>
+					<f:selectItems value="#{hospitalBean.listDistritos}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel value="Sede:" />
+				<p:selectOneMenu id="sede"
+					value="#{hospitalBean.hospital.sede.idSede}" required="true"
+					requiredMessage="Seleccione una sede">
+					<f:selectItem itemLabel="-- Seleccione --"></f:selectItem>
+					<f:selectItems value="#{hospitalBean.listSedes}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel value="Gerente:" />
+				<p:selectOneMenu id="gerente"
+					value="#{hospitalBean.hospital.gerente.idGerente}" required="true"
+					requiredMessage="Seleccione un gerente">
+					<f:selectItem itemLabel="-- Seleccione --"></f:selectItem>
+					<f:selectItems value="#{hospitalBean.listGerentes}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel value="Condicion:" />
+				<p:selectOneMenu id="condicion"
+					value="#{hospitalBean.hospital.condicion.idCondicion}"
+					required="true" requiredMessage="Seleccione una condicion">
+					<f:selectItem itemLabel="-- Seleccione --"></f:selectItem>
+					<f:selectItems value="#{hospitalBean.listCondiciones}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel value="Fecha:" />
+				<p:datePicker value="#{hospitalBean.hospital.fechaRegistro}"
+					pattern="dd/MM/yyyy" placeholder="dd/mm/aaaa" readonlyInput="true"
+					required="true" requiredMessage="Seleccione una fecha" />
+
+				<p:commandButton value="Actualizar"
+					actionListener="#{hospitalBean.modificarHospital()}"
+					update=":formMostrarHospitales:tablaMostrarHospitales mensajeGeneral"
+					oncomplete="PF('dlgModificar').hide();" />
+
+				<p:commandButton value="Cancelar"
+					style="background-color: #6c757d; border-color: #6c757d;"
+					onclick="PF('dlgModificar').hide();" immediate="true" />
+
+			</p:panelGrid>
+		</h:form>
+	</p:dialog>
+	<p:dialog id="dlg2" header="Eliminar Hospital" widgetVar="dlgEliminar"
+		showEffect="explode" hideEffect="explode" modal="true">
+		<h:form id="formEliminar">
+			<h:outputText value="Desea eliminar este hospital?" />
+			<h:inputHidden value="#{hospitalBean.hospital.idHospital}" />
+
+			<br />
+
+			<p:commandButton style="margin: 10px 10px 0 0;" value="Si"
+				actionListener="#{hospitalBean.eliminarHospital()}"
+				update=":formMostrarHospitales mensajeGeneral"
+				oncomplete="PF('dlgEliminar').hide();" />
+			<p:commandButton value="Cancelar" onclick="PF('dlgEliminar').hide();"
+				style="background-color: #6c757d; border-color: #6c757d;" />
+		</h:form>
+	</p:dialog>
+</h:body>
+</html>
