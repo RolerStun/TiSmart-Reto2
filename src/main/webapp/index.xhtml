@@ -17,7 +17,7 @@
 		<p:outputLabel value="¡Bienvenido, #{loginBean.username}!"
 			rendered="#{not empty loginBean.username}" />
 		<p:commandButton action="#{loginBean.logout}" icon="pi pi-sign-out"
-			style="background-color:#dc3545!important; border-color:#dc3545!important; margin-left:10px;"
+			styleClass="ui-button-danger" style="margin-left:10px;"
 			rendered="#{not empty loginBean.username}" />
 	</h:form>
 	<br />
@@ -64,12 +64,14 @@
 					requiredMessage="Nombre es obligatorio" />
 
 				<p:outputLabel value="Antiguedad:" />
-				<p:inputText value="#{hospitalBean.hospital.antiguedad}"
-					required="true" requiredMessage="Antiguedad es obligatorio" />
+				<p:inputNumber value="#{hospitalBean.hospital.antiguedad}"
+					required="true" requiredMessage="Antiguedad es obligatorio"
+					minValue="1" decimalPlaces="0" />
 
 				<p:outputLabel value="Area:" />
-				<p:inputText value="#{hospitalBean.hospital.area}" required="true"
-					requiredMessage="Area es obligatorio" />
+				<p:inputNumber value="#{hospitalBean.hospital.area}" required="true"
+					requiredMessage="Area es obligatorio" decimalPlaces="2"
+					maxValue="999" minValue="1" />
 
 				<p:outputLabel value="Distrito:" />
 				<p:selectOneMenu id="distrito"
