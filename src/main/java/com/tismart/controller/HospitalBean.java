@@ -42,6 +42,14 @@ public class HospitalBean {
 		return searchKeyword;
 	}
 
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
 	public void setSearchKeyword(String searchKeyword) {
 		this.searchKeyword = searchKeyword;
 	}
@@ -62,21 +70,11 @@ public class HospitalBean {
 		this.hospital = hospital;
 	}
 
-	public int getCount() {
-		count = listar.size();
-		return count;
-	}
-
 	public List<Hospital> getListar() {
 		HospitalDAO hDao = new HospitalDAOImpl();
 		Long idSede = selectedSede.getIdSede();
-		if (searchKeyword != null && idSede == null) {
-			listar = hDao.filtrarPorNombre(searchKeyword);
-		} else if (idSede != null && searchKeyword == null) {
-			listar = hDao.filtrarPorSede(idSede);
-		} else {
-			listar = hDao.listaHospitales();
-		}
+		listar = hDao.listaHospitales(searchKeyword, idSede);
+		count = listar.size();
 		return listar;
 	}
 

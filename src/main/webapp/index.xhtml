@@ -47,8 +47,7 @@
 	<br />
 
 	<h:form>
-		<p:commandButton icon="pi pi-user-plus"
-			style="background-color:#28a745!important; border-color:#28a745!important;"
+		<p:commandButton icon="pi pi-user-plus" styleClass="ui-button-success"
 			actionListener="hospitalBean.prepararNuevoHospital(actionEvent)"
 			oncomplete="PF('dlgNuevo').show();" update=":formInsertar" />
 	</h:form>
@@ -114,8 +113,7 @@
 					oncomplete="PF('dlgNuevo').hide();"
 					update=":formMostrarHospitales:tablaMostrarHospitales :formInsertar mensajeGeneral" />
 
-				<p:commandButton value="Cancelar"
-					style="background-color: #6c757d; border-color: #6c757d;"
+				<p:commandButton value="Cancelar" styleClass="ui-button-secondary"
 					action="#{hospitalBean.cancelar()}" update=":formInsertar"
 					immediate="true" onclick="PF('dlgNuevo').hide();" />
 
@@ -129,6 +127,10 @@
 		<p:dataTable id="tablaMostrarHospitales"
 			value="#{hospitalBean.listar}" var="h"
 			emptyMessage="No hay datos de hospitales">
+			<f:facet name="header">
+				<p:outputLabel value="Listado de Hospitales"
+					style="font-size: 30px;" />
+			</f:facet>
 			<p:column headerText="Id">
 				<h:outputText value="#{h.idHospital}"></h:outputText>
 			</p:column>
@@ -160,13 +162,12 @@
 			</p:column>
 			<p:column headerText="Accion">
 				<p:commandButton icon="pi pi-user-edit"
-					style="margin-right: 10px; background-color:#ffc107!important; border-color:#ffc107!important; color:black!important;"
+					styleClass="ui-button-warning" style="margin-right: 5px;"
 					oncomplete="PF('dlgModificar').show();" update=":formModificar">
 					<f:setPropertyActionListener value="#{h}"
 						target="#{hospitalBean.hospital}"></f:setPropertyActionListener>
 				</p:commandButton>
-				<p:commandButton icon="pi pi-trash"
-					style="background-color:#dc3545!important; border-color:#dc3545!important;"
+				<p:commandButton icon="pi pi-trash" styleClass="ui-button-danger"
 					oncomplete="PF('dlgEliminar').show();" update=":formEliminar">
 					<f:setPropertyActionListener value="#{h}"
 						target="#{hospitalBean.hospital}"></f:setPropertyActionListener>
@@ -240,8 +241,7 @@
 					update=":formMostrarHospitales:tablaMostrarHospitales mensajeGeneral"
 					oncomplete="PF('dlgModificar').hide();" />
 
-				<p:commandButton value="Cancelar"
-					style="background-color: #6c757d; border-color: #6c757d;"
+				<p:commandButton value="Cancelar" styleClass="ui-button-secondary"
 					onclick="PF('dlgModificar').hide();" immediate="true" />
 
 			</p:panelGrid>
@@ -259,8 +259,8 @@
 				actionListener="#{hospitalBean.eliminarHospital()}"
 				update=":formMostrarHospitales mensajeGeneral"
 				oncomplete="PF('dlgEliminar').hide();" />
-			<p:commandButton value="Cancelar" onclick="PF('dlgEliminar').hide();"
-				style="background-color: #6c757d; border-color: #6c757d;" />
+			<p:commandButton value="No" onclick="PF('dlgEliminar').hide();"
+				styleClass="ui-button-secondary" />
 		</h:form>
 	</p:dialog>
 </h:body>

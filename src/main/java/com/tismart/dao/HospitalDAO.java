@@ -9,22 +9,29 @@ import com.tismart.model.Hospital;
 import com.tismart.model.Sede;
 
 public interface HospitalDAO {
-
-	public List<Hospital> listaHospitales();
+	
+	//Lista de hospitales y filtrado por nombre y sede
+	public List<Hospital> listaHospitales(String hospital, Long sede);
+	
+	//Agregar hospital
 	public void nuevoHospital(Hospital hospital);
+	
+	//Modificar hospital
 	public void modificarHospital(Hospital hospital);
+	
+	//Eliminar hospital
 	public void eliminarHospital(Hospital hospital);
 	
-	//metodo para llenar los selectormenus
+	//Metodo para llenar los selectormenus
 	public List<Distrito> listarDistritos();
 	public List<Sede> listarSedes();
 	public List<Gerente> listarGerentes();
 	public List<Condicion> listarCondiciones();
 	
-	//filtrado
-	/*public List<Hospital> filtrarPorHospital(String searchKeyword);
-	public List<Hospital> filtrarPorSede(String selectedSede);*/
-	public List<Hospital> filtrarPorNombre(String searchKeyword);
-	public List<Hospital> filtrarPorSede(Long idSede);
+	//Obtener datos por Id
+	public Distrito findDistritoById(Long id);
+	public Sede findSedeById(Long id);
+	public Gerente findGerenteById(Long id);
+	public Condicion findCondicionById(Long id);
 	
 }

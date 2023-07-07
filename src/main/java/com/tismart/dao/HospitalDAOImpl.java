@@ -1,11 +1,13 @@
 package com.tismart.dao;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureQuery;
 
 import com.tismart.model.Condicion;
 import com.tismart.model.Distrito;
@@ -19,54 +21,114 @@ public class HospitalDAOImpl implements HospitalDAO {
 	EntityManager entity = JPAUtil.getEntityManagedFactory().createEntityManager();
 
 	@Override
-	public List<Hospital> listaHospitales() {
-		List<Hospital> listaHospitales = null;
+	public List<Hospital> listaHospitales(String hospital, Long sede) {
+		List<Hospital> listaHospitales = new ArrayList<>();
 		entity.getTransaction().begin();
 
-		String q = "SELECT h FROM Hospital h";
-
 		try {
-			listaHospitales = entity.createQuery(q).getResultList();
+			StoredProcedureQuery query = entity.createStoredProcedureQuery("lista_hospitales");
+			if (hospital != null) {
+				query.registerStoredProcedureParameter("p_hospital", String.class, ParameterMode.IN);
+				query.setParameter("p_hospital", hospital);
+			}
+			if (sede != null) {
+				query.registerStoredProcedureParameter("p_sede", Long.class, ParameterMode.IN);
+				query.setParameter("p_sede", sede);
+			}
+			query.registerStoredProcedureParameter("p_result", Class.class, ParameterMode.REF_CURSOR);
+			query.execute();
+
+			List<Object[]> results = query.getResultList();
+
+			for (Object[] result : results) {
+				Hospital h = new Hospital();
+				h.setIdHospital(((BigDecimal) result[0]).longValue());
+				h.setDistrito(findDistritoById(((BigDecimal) result[1]).longValue()));
+				h.setNombre((String) result[2]);
+				h.setAntiguedad(((BigDecimal) result[3]).longValue());
+				h.setArea(((BigDecimal) result[4]).doubleValue());
+				h.setSede((findSedeById(((BigDecimal) result[5]).longValue())));
+				h.setGerente(findGerenteById(((BigDecimal) result[6]).longValue()));
+				h.setCondicion(findCondicionById(((BigDecimal) result[7]).longValue()));
+				h.setFechaRegistro((Date) result[8]);
+
+				listaHospitales.add(h);
+			}
+
 			entity.getTransaction().commit();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			entity.getTransaction().rollback();
 		}
+
+		// JPAUtil.shutdown();
 
 		return listaHospitales;
 	}
 
 	@Override
 	public void nuevoHospital(Hospital hospital) {
+		entity.getTransaction().begin();
+
 		try {
-			entity.getTransaction().begin();
-			entity.persist(hospital);
+			StoredProcedureQuery query = entity.createStoredProcedureQuery("insertar_hospital");
+			query.registerStoredProcedureParameter("p_iddistrito", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_nombre", String.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_antiguedad", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_area", Double.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_idsede", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_idgerente", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_idcondicion", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_fecharegistro", Date.class, ParameterMode.IN);
+
+			query.setParameter("p_iddistrito", hospital.getDistrito().getIdDistrito());
+			query.setParameter("p_nombre", hospital.getNombre());
+			query.setParameter("p_antiguedad", hospital.getAntiguedad());
+			query.setParameter("p_area", hospital.getArea());
+			query.setParameter("p_idsede", hospital.getSede().getIdSede());
+			query.setParameter("p_idgerente", hospital.getGerente().getIdGerente());
+			query.setParameter("p_idcondicion", hospital.getCondicion().getIdCondicion());
+			query.setParameter("p_fecharegistro", hospital.getFechaRegistro());
+
+			query.execute();
+
 			entity.getTransaction().commit();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			entity.getTransaction().rollback();
 		}
+
+		// JPAUtil.shutdown();
 	}
 
 	@Override
 	public void modificarHospital(Hospital hospital) {
+		entity.getTransaction().begin();
+
 		try {
-			entity.getTransaction().begin();
-			entity.merge(hospital);
-			/*
-			 * if (hospital.getIdHospital() != null) { Hospital existingHospital =
-			 * entity.find(Hospital.class, hospital.getIdHospital());
-			 * 
-			 * if (existingHospital != null) {
-			 * existingHospital.setNombre(hospital.getNombre());
-			 * existingHospital.setAntiguedad(hospital.getAntiguedad());
-			 * existingHospital.setArea(hospital.getArea());
-			 * existingHospital.setDistrito(hospital.getDistrito());
-			 * existingHospital.setSede(hospital.getSede());
-			 * existingHospital.setGerente(hospital.getGerente());
-			 * existingHospital.setCondicion(hospital.getCondicion());
-			 * existingHospital.setFechaRegistro(hospital.getFechaRegistro()); } }
-			 */
+			StoredProcedureQuery query = entity.createStoredProcedureQuery("actualizar_hospital");
+			query.registerStoredProcedureParameter("p_idhospital", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_iddistrito", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_nombre", String.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_antiguedad", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_area", Double.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_idsede", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_idgerente", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_idcondicion", Long.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter("p_fecharegistro", Date.class, ParameterMode.IN);
+
+			query.setParameter("p_idhospital", hospital.getIdHospital());
+			query.setParameter("p_iddistrito", hospital.getDistrito().getIdDistrito());
+			query.setParameter("p_nombre", hospital.getNombre());
+			query.setParameter("p_antiguedad", hospital.getAntiguedad());
+			query.setParameter("p_area", hospital.getArea());
+			query.setParameter("p_idsede", hospital.getSede().getIdSede());
+			query.setParameter("p_idgerente", hospital.getGerente().getIdGerente());
+			query.setParameter("p_idcondicion", hospital.getCondicion().getIdCondicion());
+			query.setParameter("p_fecharegistro", hospital.getFechaRegistro());
+
+			query.execute();
+			
 			entity.getTransaction().commit();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -76,10 +138,16 @@ public class HospitalDAOImpl implements HospitalDAO {
 
 	@Override
 	public void eliminarHospital(Hospital hospital) {
+		entity.getTransaction().begin();
+
 		try {
-			entity.getTransaction().begin();
-			hospital = entity.find(Hospital.class, hospital.getIdHospital());
-			entity.remove(hospital);
+			StoredProcedureQuery query = entity.createStoredProcedureQuery("eliminar_hospital");
+			query.registerStoredProcedureParameter("p_idhospital", Long.class, ParameterMode.IN);
+
+			query.setParameter("p_idhospital", hospital.getIdHospital());
+
+			query.execute();
+			
 			entity.getTransaction().commit();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -160,51 +228,35 @@ public class HospitalDAOImpl implements HospitalDAO {
 	}
 
 	@Override
-	public List<Hospital> filtrarPorNombre(String searchKeyword) {
-		String jpql = "SELECT h FROM Hospital h WHERE h.nombre LIKE :keyword";
-		TypedQuery<Hospital> query = entity.createQuery(jpql, Hospital.class);
-		query.setParameter("keyword", "%" + searchKeyword + "%");
-		List<Hospital> hospitals = query.getResultList();
+	public Distrito findDistritoById(Long id) {
+		Distrito distrito = new Distrito();
+		distrito = entity.find(Distrito.class, id);
 
-		return hospitals;
+		return distrito;
 	}
 
 	@Override
-	public List<Hospital> filtrarPorSede(Long idSede) {
-		String query = "SELECT h FROM Hospital h WHERE h.sede.idSede = :idSede";
-		TypedQuery<Hospital> typedQuery = entity.createQuery(query, Hospital.class);
-		typedQuery.setParameter("idSede", idSede);
-		return typedQuery.getResultList();
+	public Sede findSedeById(Long id) {
+		Sede sede = new Sede();
+		sede = entity.find(Sede.class, id);
+
+		return sede;
 	}
 
-	/*
-	 * @Override public List<Hospital> filtrarPorHospital(String searchKeyword) {
-	 * List<Hospital> listaHospitales = null; entity.getTransaction().begin();
-	 * 
-	 * String q = "SELECT h FROM Hospital h"; listaHospitales =
-	 * entity.createQuery(q).getResultList(); List<Hospital> itemsFiltrados = new
-	 * ArrayList<>();
-	 * 
-	 * // Ejemplo de filtrado por hospital (suponiendo que tienes una lista de items
-	 * // llamada "items") for (Hospital item : listaHospitales) { if
-	 * (item.getNombre().contains(searchKeyword)) { itemsFiltrados.add(item); } }
-	 * 
-	 * return itemsFiltrados; }
-	 * 
-	 * @Override public List<Hospital> filtrarPorSede(String selectedSede) {
-	 * List<Hospital> listaHospitales = null; entity.getTransaction().begin();
-	 * 
-	 * String q = "SELECT h FROM Hospital h"; listaHospitales =
-	 * entity.createQuery(q).getResultList(); List<Hospital> itemsFiltrados = new
-	 * ArrayList<>();
-	 * 
-	 * System.out.println(listaHospitales); System.out.println(selectedSede);
-	 * 
-	 * for (Hospital item : listaHospitales) { if
-	 * (item.getSede().getDescSede().equals(selectedSede)) {
-	 * itemsFiltrados.add(item); } }
-	 * 
-	 * return itemsFiltrados; }
-	 */
+	@Override
+	public Gerente findGerenteById(Long id) {
+		Gerente gerente = new Gerente();
+		gerente = entity.find(Gerente.class, id);
+
+		return gerente;
+	}
+
+	@Override
+	public Condicion findCondicionById(Long id) {
+		Condicion condicion = new Condicion();
+		condicion = entity.find(Condicion.class, id);
+
+		return condicion;
+	}
 
 }

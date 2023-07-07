@@ -1,10 +1,12 @@
 package com.tismart.controller;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import com.tismart.dao.UsuarioDAO;
@@ -41,22 +43,31 @@ public class LoginBean implements Serializable {
 		return loggedIn;
 	}
 
-	public String login() {
+	public void login() {
 		UsuarioDAO uDao = new UsuarioDAOImpl();
 		Usuario usuario = uDao.getUsuarioByUsername(username);
 
 		if (usuario != null && usuario.getPassword().equals(password)) {
 			loggedIn = true;
-			return "index";
+			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+			try {
+				externalContext.redirect(externalContext.getRequestContextPath() + "/index.xhtml");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} else {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Credenciales inválidas"));
-			return null;
 		}
 	}
 
-	public String logout() {
+	public void logout() {
 		loggedIn = false;
-		return "login";
+		ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+		try {
+			externalContext.redirect(externalContext.getRequestContextPath() + "/login.xhtml");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

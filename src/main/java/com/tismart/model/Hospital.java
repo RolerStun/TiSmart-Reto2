@@ -19,7 +19,7 @@ import javax.persistence.TemporalType;
 public class Hospital implements Serializable {
 
 	/**
-	 * s
+	 * 
 	 */
 	private static final long serialVersionUID = 8528279833473608209L;
 
